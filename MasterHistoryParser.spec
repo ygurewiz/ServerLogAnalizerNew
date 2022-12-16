@@ -4,7 +4,7 @@
 block_cipher = None
 
 
-a = Analysis(['ServerLogAnalizer.py'],
+a = Analysis(['MasterHistoryParser.py'],
              pathex=['C:\\Users\\user\\source\\repos\\ygurewiz\\ServerLogAnalizer'],
              binaries=[],
              datas=[],
@@ -26,7 +26,7 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,  
           [],
-          name='ServerLogAnalizer',
+          name='MasterHistoryParser',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
