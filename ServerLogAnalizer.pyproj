@@ -13,7 +13,7 @@
     <RootNamespace>ServerLogAnalizer</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>"C:\Users\user\Downloads\history logs\test"</CommandLineArguments>
+    <CommandLineArguments>"C:\Users\user\Downloads\history logs\Revivim20221218"</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
