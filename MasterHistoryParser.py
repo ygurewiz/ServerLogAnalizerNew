@@ -175,7 +175,7 @@ def directoryMainUnitedFiles(argv):
 def main():
     directoryMainUnitedFiles(sys.argv)  #GOOD
 
-RECORDS_NOT_TODO = ['CommunicationCycle','StationMessage','DisablerState','GradualCleanState','DisablerEvent','SchedulerState','UserMessage','SMSEvent']
+RECORDS_NOT_TODO = ['CommunicationCycle','StationMessage','DisablerState','GradualCleanState','DisablerEvent','SchedulerState','UserMessage','SMSEvent','RobotInvalidProtocolMessage']
 RECORDS_PARSED_SEPARATELY = ['RobotSuccessfulMessage','RobotMalfunction','CleaningEvent','RobotFailingMessage','MasterState']
 
 def cutUnwantedChars(dataStr):
@@ -184,7 +184,7 @@ def cutUnwantedChars(dataStr):
     for s in dataStr:
         if s in wantedDataChars:
             res = res+s
-    return res
+    return res      #cutUnwantedChars
 
 def getRobotLocation(CurrentLocationDescription):
     CurrentLocationDescriptionStr = CurrentLocationDescription.split(',')
@@ -204,7 +204,7 @@ def getRobotLocation(CurrentLocationDescription):
         SurfaceNumber = None
         SurfaceType = 'INVALID'
     CurrentLocationDescription = {'LastCleanPercent':CurrentLocationDescriptionStr[0].strip(),'SurfaceType':SurfaceType,'SurfaceNumber_N_S':SurfaceNumber,'currentSegmentStatus':CurrentLocationDescriptionStr[2].strip(),'Direction':cutUnwantedChars(CurrentLocationDescriptionStr[3].strip()),'TT_NS':cutUnwantedChars(CurrentLocationDescriptionStr[4].split('(')[1].strip()),'TT_EW':cutUnwantedChars(CurrentLocationDescriptionStr[5].split(')')[0].strip())}
-    return CurrentLocationDescription
+    return CurrentLocationDescription       #getRobotLocation
 
 def getkeepAliveData(Data,AssetId,date,time,UTC,isCleaningEvent):
     if not isCleaningEvent:
@@ -215,10 +215,18 @@ def getkeepAliveData(Data,AssetId,date,time,UTC,isCleaningEvent):
         res = createDict(res['CurrentLocationDescription'],res,'')
         res.pop('CurrentLocationDescription')
     else:
-        res = {'AssetId':AssetId,'Date':date,'Time':time,'UTC':UTC,'PVersion':None,'Station':None,'UnitToStationRssi':None,'StationToUnitRssi':None,'Command':Data['Event'],'Header':Data['Details']['Header'],'CurrentLocationDescription':None}
+        res = {'AssetId':AssetId,'Date':date,'Time':time,'UTC':UTC,'PVersion':None,'Station':None,'UnitToStationRssi':None,'StationToUnitRssi':None,'Command':Data['Event'],'Header':Data['Details']['Header']}
         res = createDict(res['Header'],res,'')
         res.pop('Header')
-        
+    for e in res['Events']:
+        if not e.find('SENSING_FENCE_CHARGING')==-1:
+            res['FenceSensing'] = 'CHARGING'
+            break
+        elif not e.find('SENSING_FENCE_CONNECTED')==-1:
+            res['FenceSensing'] = 'CONNECTED'
+            break
+        else:
+            res['FenceSensing'] = None
     return res
 
 def lineAnalizeHistory(lineJson,i):
@@ -258,7 +266,9 @@ def lineAnalizeHistory(lineJson,i):
                 if KA['AssetId']==AssetId:
                     if date == KA['Date']:
                         if not time == KA['Time']:
-                            keepAliveDataList.append(getkeepAliveData(Data,AssetId,date,time,UTC,True))
+                            currentKA = getkeepAliveData(Data,AssetId,date,time,UTC,True)
+                            if currentKA not in keepAliveDataList:
+                                keepAliveDataList.append(currentKA)
 
         if event=='cleaningComplete':
             res['Reason'] = Data['Details']['Reason']
