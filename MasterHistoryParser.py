@@ -360,7 +360,7 @@ def createFileDataPerRobot(AssetId,UTC,PVersion,communicationFails,cleaningComma
     resCleaningCommands = analyseCommands(cleaningCommands)
     res = res+ resCleaningCommands+'\n\n'
     [resMasterState,e] = analyseMasterState(masterState)
-    errors = '_'
+    errors = e
     for E in errorsFound:
         if e.find(E)==-1:
             errors = errors+E
@@ -551,10 +551,12 @@ def analyseCommands(cleaningCommands):
         else:
             data = 'timeStamp: {0}, cleaningSession: {1}, CleanBehavior: {2}\n'.format(c['DateTime'],c['cleaningSession'],c['CleanBehavior'])
             data = data+'\tSTART_CLEAN: {0}'.format(unitParams)
-    res = res+data
+        res = res+data
     return res
 
 def analyseCleaningData(AssetId,cleaningData):
+    #if AssetId=='SG1-A-011-02-D01-01' or AssetId=='SG1-A-018-01-D01-08':
+    #    print('t')
     cycleRes = list()
     cleaningCycles = getCleaningCycles(AssetId,cleaningData)
     numCycles = 0
@@ -588,13 +590,14 @@ def analyseCleaningData(AssetId,cleaningData):
         currentRes = currentRes+ 'CLEAN DATA: numKA: {2}, timePerSequence: {0}s, timePerSqMeters: {1}s\n'.format(timePerSequence,timePerSqMeters,lenCycle)
         currentRes = currentRes +'DesiredCleaningArea: {0}, CleanSegmentsArea: {1}, SequencesCleaned: {2}, ExpectedSequences: {3}, cleanAreaPercent: {4}%, sequencesPercent: {5}%\n'.format(DesiredCleaningArea,CleanSegmentsArea,SequencesCleaned,ExpectedSequences,cleanAreaPercent,sequencesPercent)
         currentRes = currentRes +'Bits: {0}\n'.format(cycle['cycleData'][lenCycle-1]['bits'])
-        if cycle['cycleData'][lenCycle-1]['stateMachineLocation']=='inParkingNow':
+        currentStateMachineLocation = cycle['cycleData'][lenCycle-1]['stateMachineLocation']
+        if (currentStateMachineLocation=='inParkingNow') or (currentStateMachineLocation=='isErrorNow') or (currentStateMachineLocation=='isPowerResetNow'):
             for e in cycle['cycleData'][lenCycle-1]['bits']:
                 errors = ''
                 if e in EVENT_BITS_ERROR:
                     errors = errors+'_'+e
                     ERRORS.append(e)
-            if not errors=='':
+            if not ERRORS==[]:
                 currentRes = currentRes+'CLEANING_ENDED_IN_PARKING_WITH_ERRORS: {0}\n'.format(errors)
                 
             else:
@@ -630,7 +633,7 @@ def getCleaningCycles(AssetId,cleaningData):
                 singleCycle['cycleData'].append(data)                
             else:
                 print('WRONG CLEAN CYCLE MAPPING1')
-        elif prevStateMachineLocation == 'isPowerResetNow' or prevStateMachineLocation=='isErroringNow' or prevStateMachineLocation=='inParkingNow':
+        elif prevStateMachineLocation == 'isPowerResetNow' or prevStateMachineLocation=='isErrorNow' or prevStateMachineLocation=='inParkingNow':
             if currentStateMachineLocation =='isCleaningNow' or currentStateMachineLocation =='isReturningHomeNow':
                 if not cleanCycleStarted:
                     cleanCycleStarted = True
