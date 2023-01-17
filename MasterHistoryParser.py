@@ -235,7 +235,7 @@ def analyseRobotData(AssetId,Data):
             inParkingNow = (d['CurrentSurfaceType']=='surfacE_TYPE_PARKING') 
             isCleaningNow = (d['RobotProcedure']=='cleaninG_STATE') #and not (d['RobotStep']=='steP_PARKED')
             isReturningHomeNow = (d['RobotProcedure']=='returN_HOME_STATE')
-            isPowerResetNow = (d['CurrentSurfaceType']=='surfacE_TYPE_INVALID')
+            isPowerResetNow = (d['CurrentSurfaceType']=='surfacE_TYPE_INVALID') or (d['RobotProcedure']=='booT_UP_STATE')
             isErrorNow = (d['RobotProcedure']=='erroR_STATE') or (d['RobotProcedure']=='minimaL_OPERATING_VOLTAGE_STATE')
             
             CurrentSurfaceNum = 'CurrentSurfaceNum'
