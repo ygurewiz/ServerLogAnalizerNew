@@ -13,7 +13,7 @@
     <RootNamespace>ServerLogAnalizer</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>"C:\Users\user\Ecoppia\V&amp;V and FE Team - Documents\General\Lab Testing\T4\NADEC &amp; Bi-Facial\temp\Revivim20230115"</CommandLineArguments>
+    <CommandLineArguments>"C:\Users\user\Ecoppia\V&amp;V and FE Team - Documents\General\Lab Testing\T4\NADEC &amp; Bi-Facial\FIELD HISTORY LOGS\TestDeployRunHanger202301"</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

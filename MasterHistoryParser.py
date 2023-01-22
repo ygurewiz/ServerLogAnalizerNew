@@ -42,13 +42,13 @@ def typesFoundList(inputFile,fileNum):
     fp.close()  #typesFoundList ##GOOD
     return [allData,typesFound,notParsedRecordTypes]    #typesFoundList     
 
-def createCSVfile(outputDir,EventFileType,headers,inputDir,fileNum): 
+def createCSVfile(outputDir,EventFileType,headers,inputDir,toAppendName): 
     theDir = str.split(inputDir,'\\')
     #create output files and open it
-    if fileNum==None:
+    if toAppendName==True:
         FileName = '{0}_{1}.csv'.format(theDir[len(theDir)-1],EventFileType)
     else:
-        FileName = '{0}_{1}__{2}.csv'.format(theDir[len(theDir)-1],EventFileType,fileNum)    
+        FileName = '{0}.csv'.format(EventFileType)    
     print(FileName)
     File = open(os.path.join(outputDir,FileName),"w+")
     writerFile = csv.DictWriter(File, fieldnames=headers,lineterminator='\n')
@@ -137,18 +137,29 @@ def directoryMainUnitedFiles(argv):
                       'RobotFailingMessages':sorted(RobotFailingMessages, key=itemgetter('DateTime')),
                       'MasterStateMessages':sorted(MasterStateMessages, key=itemgetter('DateTime'))}
     for s in EventFilesData:
+        if s=='AllKeepAliveData':
+            continue
         theList = EventFilesData[s]
         headers = getHeadersFromJson(theList) 
-        [writerFile,File] =createCSVfile(outputDir,s,headers,inputDir,None)
+        [writerFile,File] =createCSVfile(outputDir,s,headers,inputDir,True)
         writerFile.writerows(theList)
         File.close()
 
     robotsFilesData = getDataPerRobot(EventFilesData)
     for robotFData in robotsFilesData:
         FileName = outputDir+'\\'+robotFData['AssetId']
+        headers = getHeadersFromJson(EventFilesData['AllKeepAliveData']) 
+        theList = list()
+        for t in EventFilesData['AllKeepAliveData']:
+            if t['AssetId']==robotFData['AssetId']:
+                theList.append(t)
+        [writerFile,File] =createCSVfile(outputDir,robotFData['AssetId'],headers,inputDir,False)
+        writerFile.writerows(theList)
+        File.close()
         data = robotFData['DATA']
         errors = robotFData['FileNameData']
-        FileName = FileName+errors+'.txt'
+        FileName = FileName+'_'+errors
+        FileName = FileName[:251]+'.txt'
         theFile = open(FileName,'w')
         theFile.writelines(data)
         theFile.close()
@@ -531,7 +542,7 @@ def analyseMalfunctions(malfunctions):
     for m in malfunctions:
         m.pop('Time')
         res = res+'\t'+json.dumps(m)+'\n'
-    return res
+    return res      #analyseMalfunctions
 
 def analyseCommands(cleaningCommands):
     res = 'CLEANING COMMANDS FOUND: \n'
@@ -552,7 +563,7 @@ def analyseCommands(cleaningCommands):
             data = 'timeStamp: {0}, cleaningSession: {1}, CleanBehavior: {2}\n'.format(c['DateTime'],c['cleaningSession'],c['CleanBehavior'])
             data = data+'\tSTART_CLEAN: {0}'.format(unitParams)
         res = res+data
-    return res
+    return res      #analyseCommands
 
 def analyseCleaningData(AssetId,cleaningData):
     #if AssetId=='SG1-A-011-02-D01-01' or AssetId=='SG1-A-018-01-D01-08':
@@ -609,7 +620,7 @@ def analyseCleaningData(AssetId,cleaningData):
         cycleRes.append(currentRes)
         #print(currentRes)
         
-    return [cycleRes,ERRORS]
+    return [cycleRes,ERRORS]        #analyseCleaningData
 
 def getCleaningCycles(AssetId,cleaningData):
     currentStateMachineLocation = None
@@ -663,7 +674,7 @@ def getCleaningCycles(AssetId,cleaningData):
         if cleanCycleStarted==False:
             print('WRONG CLEAN CYCLE MAPPING5')
         prevStateMachineLocation = currentStateMachineLocation
-    return cleaningCycles
+    return cleaningCycles       #getCleaningCycles
 
 
 RECORDS_NOT_TODO = ['CommunicationCycle','StationMessage','DisablerState','GradualCleanState','DisablerEvent','SchedulerState','UserMessage','SMSEvent','RobotInvalidProtocolMessage']
