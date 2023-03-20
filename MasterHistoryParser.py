@@ -1,4 +1,4 @@
-from audioop import avg
+#from audioop import avg
 from xmlrpc.client import MAXINT, MININT
 import keyboard
 from pathlib import Path
@@ -8,7 +8,7 @@ import os
 import json
 from operator import itemgetter
 import datetime
-import math
+#import math
      
 ############################################################################################################################
 def typesFoundList(inputFile,fileNum):
@@ -125,7 +125,10 @@ def directoryMainUnitedFiles(argv):
         i=0
         for line in lines:
             i=i+1
-            lineJson = json.loads(line)
+            try:
+                lineJson = json.loads(line)
+            except:
+                print('problem')
             res = lineAnalizeHistory(lineJson,i)
             if not res==None:
                 print('jj')
