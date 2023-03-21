@@ -352,6 +352,9 @@ def analyseRobotData(AssetId,Data):
 
 def createFileDataPerRobot(AssetId,UTC,PVersion,communicationFails,cleaningCommands,malfunctions,masterState,cleaningData,parkingData,errorOutOfBaseData):
     res = ''
+    noCleaning  = False
+    if cleaningData['Data']==[]:
+        noCleaning = True
     RobotDetails = '*******\nROBOT: {0}, UTC: {1}, PVersion: {2}\n*******\n'.format(AssetId,UTC,PVersion)
     res = res + RobotDetails
 
@@ -382,6 +385,8 @@ def createFileDataPerRobot(AssetId,UTC,PVersion,communicationFails,cleaningComma
     strCommunicationFails = 'COMMUNICATION_FAILS: {0}, SUCCESFULL: {1}\n'.format(communicationFails,successFullComs)
     res = res+ strCommunicationFails+'\n\n'
     #print(res)
+    if noCleaning and errors=='':
+        errors = 'NO_CLEAN'
     return {'AssetId':AssetId,'DATA':res,'FileNameData':errors}     #createFileDataPerRobot
 
 def analyseMasterState(masterState):

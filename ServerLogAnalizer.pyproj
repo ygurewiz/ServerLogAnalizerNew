@@ -13,7 +13,7 @@
     <RootNamespace>ServerLogAnalizer</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>"C:\Users\user\Ecoppia\V&amp;V and FE Team - Documents\Deployment Projects\NEVO\LOGSNPICS\202303\20230319\B-35 showing continuously disconnected because of sleep mode\History S3 Log\S3"</CommandLineArguments>
+    <CommandLineArguments>"C:\Users\user\Ecoppia\V&amp;V and FE Team - Documents\Deployment Projects\Israel\T4 Shoval\S3 history logs\20230320"</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
