@@ -140,8 +140,8 @@ def directoryMainUnitedFiles(argv):
                       'RobotFailingMessages':sorted(RobotFailingMessages, key=itemgetter('DateTime')),
                       'MasterStateMessages':sorted(MasterStateMessages, key=itemgetter('DateTime'))}
     for s in EventFilesData:
-        if s=='AllKeepAliveData':
-            continue
+        #if s=='AllKeepAliveData':
+        #    continue
         theList = EventFilesData[s]
         headers = getHeadersFromJson(theList) 
         [writerFile,File] =createCSVfile(outputDir,s,headers,inputDir,True)
