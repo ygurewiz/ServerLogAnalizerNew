@@ -336,7 +336,10 @@ def analyseRobotData(AssetId,Data):
             malfunctions.append(d)
         elif data['dataType']=='cleaningEvents':
             if d['Event']=='startCommandRequest':
-                cleaningCommands.append({'DateTime':d['DateTime'],'unitParams':d['unitParams'],'cleaningSession':d['cleaningSession'],'CleanBehavior':d['CleanBehavior']})
+                if not d.get('cleaningSession')==None:
+                    cleaningCommands.append({'DateTime':d['DateTime'],'unitParams':d['unitParams'],'cleaningSession':d['cleaningSession'],'CleanBehavior':d['CleanBehavior']})
+                else:
+                    cleaningCommands.append({'DateTime':d['DateTime'],'unitParams':d['unitParams'],'CleanBehavior':d['CleanBehavior']})
         elif data['dataType']=='RobotFailingMessages':
             communicationFails = communicationFails+1
         #elif data['dataType']=='MasterStateMessages':
@@ -565,10 +568,16 @@ def analyseCommands(cleaningCommands):
             cleanCom = ''
             for m in unitParams['whereToStartAndWhatToDo']:
                 cleanCom = '\t{{start: {0}, ToClean: {1}}}'.format(m['Start'],m['ToClean'])
-            data = 'timeStamp: {0}, cleaningSession: {1}, CleanBehavior: {2}\n'.format(c['DateTime'],c['cleaningSession'],c['CleanBehavior'])
+            if not c.get('cleaningSession')==None:
+                data = 'timeStamp: {0}, cleaningSession: {1}, CleanBehavior: {2}\n'.format(c['DateTime'],c['cleaningSession'],c['CleanBehavior'])
+            else:
+                data = 'timeStamp: {0}, CleanBehavior: {1}\n'.format(c['DateTime'],c['CleanBehavior'])
             data = data+'\tSTART_CLEAN: {0}, {1}'.format(to,cleanCom)
         else:
-            data = 'timeStamp: {0}, cleaningSession: {1}, CleanBehavior: {2}\n'.format(c['DateTime'],c['cleaningSession'],c['CleanBehavior'])
+            if not c.get('cleaningSession')==None:
+                data = 'timeStamp: {0}, cleaningSession: {1}, CleanBehavior: {2}\n'.format(c['DateTime'],c['cleaningSession'],c['CleanBehavior'])
+            else:
+                data = 'timeStamp: {0}, CleanBehavior: {1}\n'.format(c['DateTime'],c['CleanBehavior'])
             data = data+'\tSTART_CLEAN: {0}'.format(unitParams)
         res = res+data
     return res      #analyseCommands
@@ -649,7 +658,12 @@ def getCleaningCycles(AssetId,cleaningData):
                 currentClean = currentClean+1
                 singleCycle['cycleNumber'] = currentClean
                 singleCycle['startTime'] = getTimeStamp(data['DateTime'])
-                singleCycle['cycleData'].append(data)                
+                singleCycle['cycleData'].append(data)
+            elif currentStateMachineLocation == 'isErrorNow':
+                currentClean = currentClean+1
+                singleCycle['cycleNumber'] = currentClean
+                singleCycle['startTime'] = getTimeStamp(data['DateTime'])
+                singleCycle['cycleData'].append(data)
             else:
                 print('WRONG CLEAN CYCLE MAPPING1')
         elif prevStateMachineLocation == 'isPowerResetNow' or prevStateMachineLocation=='isErrorNow' or prevStateMachineLocation=='inParkingNow':
@@ -679,7 +693,7 @@ def getCleaningCycles(AssetId,cleaningData):
                  print('WRONG CLEAN CYCLE MAPPING23')
         else:
             print('WRONG CLEAN CYCLE MAPPING4')
-        if cleanCycleStarted==False:
+        if cleanCycleStarted==False and singleCycle['cycleNumber']==0:
             print('WRONG CLEAN CYCLE MAPPING5')
         prevStateMachineLocation = currentStateMachineLocation
     return cleaningCycles       #getCleaningCycles
@@ -850,7 +864,8 @@ def lineAnalizeHistory(lineJson,i):
             res['Details'] = None
             res['unitParams'] = Data['Details']['Command']['startClean']['unitPrameters']
             res['requestTime'] = Data['Details']['Trigger']['RequestTime']
-            res['cleaningSession'] = Data['Details']['Trigger']['cleaningSession']
+            if not res.get('cleaningSession')==None:
+                res['cleaningSession'] = Data['Details']['Trigger']['cleaningSession']
             res['CleanBehavior'] = Data['Details']['CleanBehaviour']
         
         else:
