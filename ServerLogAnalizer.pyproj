@@ -13,7 +13,7 @@
     <RootNamespace>ServerLogAnalizer</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>"C:\Users\user\Ecoppia\V&amp;V and FE Team - Documents\Deployment Projects\NEVO\LOGSNPICS\202303\20230322 - s3 history logs"</CommandLineArguments>
+    <CommandLineArguments>"C:\Users\user\Downloads\test_hanger"</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

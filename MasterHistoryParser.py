@@ -246,7 +246,7 @@ def analyseRobotData(AssetId,Data):
                 masterState.append(res)
                 continue
             
-            inParkingNow = (d['CurrentSurfaceType']=='surfacE_TYPE_PARKING') 
+            inParkingNow = (d['CurrentSurfaceType']=='surfacE_TYPE_PARKING') or (d['RobotProcedure']=='activE_COMMAND_STATE')
             isCleaningNow = (d['RobotProcedure']=='cleaninG_STATE') #and not (d['RobotStep']=='steP_PARKED')
             isReturningHomeNow = (d['RobotProcedure']=='returN_HOME_STATE')
             isPowerResetNow = (d['CurrentSurfaceType']=='surfacE_TYPE_INVALID') or (d['RobotProcedure']=='booT_UP_STATE')
@@ -255,6 +255,10 @@ def analyseRobotData(AssetId,Data):
             CurrentSurfaceNum = 'CurrentSurfaceNum'
             if d.get('CurrentSurfaceNum')==None:
                 CurrentSurfaceNum = 'CurrentSurfaceTypeAppearnaceNum'
+            if d.get('TT_NS')==None:
+                d['TT_NS'] = None
+            if d.get('TT_EW')==None:
+                d['TT_EW'] = None
             comRes = {'DateTime':d['DateTime'],'TT_NS':d['TT_NS'],'TT_EW':d['TT_EW'],'Station':d['Station'],'UnitToStationRssi':d['UnitToStationRssi'],'StationToUnitRssi':d['StationToUnitRssi'],'Battery':d['Battey'],'isCharging':d['eventS_BIT_SENSING_FENCE_CHARGING'],'isSensing':d['eventS_BIT_SENSING_FENCE_CONNECTED'],'SurfaceID':d[CurrentSurfaceNum]}
 
             if inParkingNow and not isCleaningNow:
@@ -711,24 +715,25 @@ def cutUnwantedChars(dataStr):
     return float(res)      #cutUnwantedChars
 
 def getRobotLocation(CurrentLocationDescription):
-    CurrentLocationDescriptionStr = CurrentLocationDescription.split(',')
-    SurfaceType = CurrentLocationDescriptionStr[1].split(': ')[0]
-    SurfaceNumber = int(CurrentLocationDescriptionStr[1].split(': ')[1])
-    isOdd = bool(SurfaceNumber%2)
-    if SurfaceType=='seg':
-        if isOdd:SurfaceNumber = int((SurfaceNumber+1)/2)
-        else: SurfaceNumber = int((SurfaceNumber+2)/2)
-    elif SurfaceType=='dock':
-        if isOdd:SurfaceNumber = int((SurfaceNumber+3)/2)
-        else: SurfaceNumber = int((SurfaceNumber+2)/2)
-    elif SurfaceType=='bri':
-        if isOdd:SurfaceNumber = int((SurfaceNumber+1)/2)
-        else: SurfaceNumber = int(SurfaceNumber/2)
-    else:
-        SurfaceNumber = None
-        SurfaceType = 'INVALID'
-    CurrentLocationDescription = {'LastCleanPercent':CurrentLocationDescriptionStr[0].strip(),'SurfaceType':SurfaceType,'SurfaceNumber_N_S':SurfaceNumber,'currentSegmentStatus':CurrentLocationDescriptionStr[2].strip(),'Direction':cutUnwantedChars(CurrentLocationDescriptionStr[3].strip()),'TT_NS':cutUnwantedChars(CurrentLocationDescriptionStr[4].split('(')[1].strip()),'TT_EW':cutUnwantedChars(CurrentLocationDescriptionStr[5].split(')')[0].strip())}
-    return CurrentLocationDescription       #getRobotLocation
+    return {'CurrentLocationDescription':CurrentLocationDescription}
+    #CurrentLocationDescriptionStr = CurrentLocationDescription.split(',')
+    #SurfaceType = CurrentLocationDescriptionStr[1].split(': ')[0]
+    #SurfaceNumber = int(CurrentLocationDescriptionStr[1].split(': ')[1])
+    #isOdd = bool(SurfaceNumber%2)
+    #if SurfaceType=='seg':
+    #    if isOdd:SurfaceNumber = int((SurfaceNumber+1)/2)
+    #    else: SurfaceNumber = int((SurfaceNumber+2)/2)
+    #elif SurfaceType=='dock':
+    #    if isOdd:SurfaceNumber = int((SurfaceNumber+3)/2)
+    #    else: SurfaceNumber = int((SurfaceNumber+2)/2)
+    #elif SurfaceType=='bri':
+    #    if isOdd:SurfaceNumber = int((SurfaceNumber+1)/2)
+    #    else: SurfaceNumber = int(SurfaceNumber/2)
+    #else:
+    #    SurfaceNumber = None
+    #    SurfaceType = 'INVALID'
+    #CurrentLocationDescription = {'LastCleanPercent':CurrentLocationDescriptionStr[0].strip(),'SurfaceType':SurfaceType,'SurfaceNumber_N_S':SurfaceNumber,'currentSegmentStatus':CurrentLocationDescriptionStr[2].strip(),'Direction':cutUnwantedChars(CurrentLocationDescriptionStr[3].strip()),'TT_NS':cutUnwantedChars(CurrentLocationDescriptionStr[4].split('(')[1].strip()),'TT_EW':cutUnwantedChars(CurrentLocationDescriptionStr[5].split(')')[0].strip())}
+    #return CurrentLocationDescription       #getRobotLocation
 
 EVENT_BITS_STATUS = ['eventS_BIT_CHANGE_PARKING',
                      'eventS_BIT_AT_BASE',
