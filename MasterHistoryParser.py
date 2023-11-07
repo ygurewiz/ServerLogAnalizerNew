@@ -1,4 +1,4 @@
-#from audioop import avg
+
 from xmlrpc.client import MAXINT, MININT
 import keyboard
 from pathlib import Path
@@ -8,7 +8,7 @@ import os
 import json
 from operator import itemgetter
 import datetime
-#import math
+
      
 ############################################################################################################################
 def typesFoundList(inputFile,fileNum):
@@ -133,15 +133,13 @@ def directoryMainUnitedFiles(argv):
             if not res==None:
                 print('jj')
         theFile.close()
-    #sorted(keepAliveDataList, key=itemgetter('DateTime'))
+
     EventFilesData = {'AllKeepAliveData':sorted(keepAliveDataList, key=itemgetter('DateTime')),
                       'robotMalfunctions':sorted(robotMalfunctions, key=itemgetter('DateTime')),
                       'cleaningEvents':sorted(cleaningEvents, key=itemgetter('DateTime')),
                       'RobotFailingMessages':sorted(RobotFailingMessages, key=itemgetter('DateTime')),
                       'MasterStateMessages':sorted(MasterStateMessages, key=itemgetter('DateTime'))}
     for s in EventFilesData:
-        #if s=='AllKeepAliveData':
-        #    continue
         theList = EventFilesData[s]
         headers = getHeadersFromJson(theList) 
         [writerFile,File] =createCSVfile(outputDir,s,headers,inputDir,True)
@@ -150,22 +148,25 @@ def directoryMainUnitedFiles(argv):
 
     robotsFilesData = getDataPerRobot(EventFilesData)
     for robotFData in robotsFilesData:
-        FileName = outputDir+'\\'+robotFData['AssetId']
+        FileName = outputDir+'\\'+robotFData
+        #FileName = outputDir+'\\'+robotFData['AssetId']
         headers = getHeadersFromJson(EventFilesData['AllKeepAliveData']) 
         theList = list()
         for t in EventFilesData['AllKeepAliveData']:
-            if t['AssetId']==robotFData['AssetId']:
+            if t['AssetId']==robotFData:
                 theList.append(t)
-        [writerFile,File] =createCSVfile(outputDir,robotFData['AssetId'],headers,inputDir,False)
+            
+        [writerFile,File] =createCSVfile(outputDir,robotFData,headers,inputDir,False)
         writerFile.writerows(theList)
         File.close()
-        data = robotFData['DATA']
-        errors = robotFData['FileNameData']
-        FileName = FileName+'_'+errors
-        FileName = FileName[:251]+'.txt'
-        theFile = open(FileName,'w')
-        theFile.writelines(data)
-        theFile.close()
+         #UNUSED 07/11/2023
+        #data = robotFData['DATA']
+        #errors = robotFData['FileNameData']
+        #FileName = FileName+'_'+errors
+        #FileName = FileName[:251]+'.txt'
+        #theFile = open(FileName,'w')
+        #theFile.writelines(data)
+        #theFile.close()
         
 
     print('NOT_DONE:\t')
@@ -186,13 +187,15 @@ def getDataPerRobot(EventFilesData):
             if robotsDataList.get(AssetId)==None:
                 robotsDataList[AssetId] = []
             robotsDataList[AssetId].append({'dataType':event,'Data':d})
-    for robot in robotsDataList:
-        [AssetId,UTC,PVersion,communicationFails,cleaningCommands,malfunctions,masterState,cleaningData,parkingData,errorOutOfBaseData] = analyseRobotData(robot,robotsDataList[robot])
-        res = createFileDataPerRobot(AssetId,UTC,PVersion,communicationFails,cleaningCommands,malfunctions,masterState,cleaningData,parkingData,errorOutOfBaseData)
-        robotsFilesData.append(res)
-    return robotsFilesData      #getDataPerRobot
+    #UNUSED 07/11/2023
+    #for robot in robotsDataList:
+    #    [AssetId,UTC,PVersion,communicationFails,cleaningCommands,malfunctions,masterState,cleaningData,parkingData,errorOutOfBaseData] = analyseRobotData(robot,robotsDataList[robot])
+    #    res = createFileDataPerRobot(AssetId,UTC,PVersion,communicationFails,cleaningCommands,malfunctions,masterState,cleaningData,parkingData,errorOutOfBaseData)
+    #    robotsFilesData.append(res)
+    #return robotsFilesData      #getDataPerRobot
+    return robotsDataList      #getDataPerRobot
 
-def getBits(d):
+def getBits(d):     #UNUSED 07/11/2023
     bits = list()
     for c in d:
         if not c.find('eventS_')==-1:
@@ -201,7 +204,7 @@ def getBits(d):
     return bits     #getBits
 
 
-def analyseRobotData(AssetId,Data):
+def analyseRobotData(AssetId,Data):     #UNUSED 07/11/2023
     cleaningCommands = list()
     masterState = list()
     communicationFails = 0
@@ -241,7 +244,10 @@ def analyseRobotData(AssetId,Data):
                 PanelNumber = 'iterationInStep'
             if d.get('ExpectedSequences')==None:
                 ExpectedSequences = 'totalIterationsInStep'
-            res = {'DateTime':d['DateTime'],'Command':d['Command'],'CurrentSurfaceType':d['CurrentSurfaceType'],'CurrentSurfaceNum':d[currentSurfaceNum],'DesiredCleaningArea':d['DesiredCleaningArea'],'CleanSegmentsArea':d['CleanSegmentsArea'],'CurrentSequence':d[currentSequence],'RobotProcedure':d['RobotProcedure'],'RobotStep':d['RobotStep'],'SequencesCleaned':d[SequencesCleaned],'PanelNumber':d[PanelNumber],'ExpectedSequences':d[ExpectedSequences],'Direction':d['Direction'],'Pitch':d['Pitch'],'Roll':d['Roll'],'Battery':d['Battey'],'bits':getBits(d)}
+            if d. get('totalIterationsInStep')==None:
+                res = {'DateTime':d['DateTime'],'Command':d['Command'],'CurrentSurfaceType':d['CurrentSurfaceType'],'CurrentSurfaceNum':d[currentSurfaceNum],'DesiredCleaningArea':d['DesiredCleaningArea'],'CleanSegmentsArea':d['CleanSegmentsArea'],'CurrentSequence':d[currentSequence],'RobotProcedure':d['RobotProcedure'],'RobotStep':d['RobotStep'],'SequencesCleaned':d[SequencesCleaned],'PanelNumber':d[PanelNumber],'ExpectedSequences':None,'Direction':d['Direction'],'Pitch':d['Pitch'],'Roll':d['Roll'],'Battery':d['Battey'],'bits':getBits(d)}
+            else:
+                res = {'DateTime':d['DateTime'],'Command':d['Command'],'CurrentSurfaceType':d['CurrentSurfaceType'],'CurrentSurfaceNum':d[currentSurfaceNum],'DesiredCleaningArea':d['DesiredCleaningArea'],'CleanSegmentsArea':d['CleanSegmentsArea'],'CurrentSequence':d[currentSequence],'RobotProcedure':d['RobotProcedure'],'RobotStep':d['RobotStep'],'SequencesCleaned':d[SequencesCleaned],'PanelNumber':d[PanelNumber],'ExpectedSequences':d[ExpectedSequences],'Direction':d['Direction'],'Pitch':d['Pitch'],'Roll':d['Roll'],'Battery':d['Battey'],'bits':getBits(d)}
             if PVersion==None:            
                 masterState.append(res)
                 continue
@@ -256,9 +262,15 @@ def analyseRobotData(AssetId,Data):
             if d.get('CurrentSurfaceNum')==None:
                 CurrentSurfaceNum = 'CurrentSurfaceTypeAppearnaceNum'
             if d.get('TT_NS')==None:
-                d['TT_NS'] = None
+                if d.get('Tilt_NS'):
+                    d['TT_NS'] = d['Tilt_NS']
+                else:
+                    d['TT_NS'] = None
             if d.get('TT_EW')==None:
-                d['TT_EW'] = None
+                if d.get('Tilt_EW'):
+                    d['TT_EW'] = d['Tilt_EW']
+                else:
+                    d['TT_EW'] = None
             comRes = {'DateTime':d['DateTime'],'TT_NS':d['TT_NS'],'TT_EW':d['TT_EW'],'Station':d['Station'],'UnitToStationRssi':d['UnitToStationRssi'],'StationToUnitRssi':d['StationToUnitRssi'],'Battery':d['Battey'],'isCharging':d['eventS_BIT_SENSING_FENCE_CHARGING'],'isSensing':d['eventS_BIT_SENSING_FENCE_CONNECTED'],'SurfaceID':d[CurrentSurfaceNum]}
 
             if inParkingNow and not isCleaningNow:
@@ -355,9 +367,9 @@ def analyseRobotData(AssetId,Data):
     malfunctions = sorted(malfunctions, key=itemgetter('DateTime'))
     masterState = sorted(masterState, key=itemgetter('DateTime'))
   
-    return [AssetId,UTC,PVersion,communicationFails,cleaningCommands,malfunctions,masterState,cleaningData,parkingData,errorOutOfBaseData]      #analyseRobotData
+    return [AssetId,UTC,PVersion,communicationFails,cleaningCommands,malfunctions,masterState,cleaningData,parkingData,errorOutOfBaseData]      
 
-def createFileDataPerRobot(AssetId,UTC,PVersion,communicationFails,cleaningCommands,malfunctions,masterState,cleaningData,parkingData,errorOutOfBaseData):
+def createFileDataPerRobot(AssetId,UTC,PVersion,communicationFails,cleaningCommands,malfunctions,masterState,cleaningData,parkingData,errorOutOfBaseData):      #UNUSED 07/11/2023
     res = ''
     noCleaning  = False
     if cleaningData['Data']==[]:
@@ -394,7 +406,7 @@ def createFileDataPerRobot(AssetId,UTC,PVersion,communicationFails,cleaningComma
     #print(res)
     if noCleaning and errors=='':
         errors = 'NO_CLEAN'
-    return {'AssetId':AssetId,'DATA':res,'FileNameData':errors}     #createFileDataPerRobot
+    return {'AssetId':AssetId,'DATA':res,'FileNameData':errors}     #UNUSED 07/11/2023
 
 def analyseMasterState(masterState):
     resMasterState = 'MASTER_STATE_DATA: \n'
@@ -408,14 +420,14 @@ def analyseMasterState(masterState):
             for b in ms['bits']:
                 if b in EVENT_BITS_ERROR:
                     errorBits = errorBits+'_'+b
-            errors = '{0}_{2}_CleanPercent_{1}_ErrorBits{3}'.format(ms['CurrentSurfaceType'],int(ms['CleanSegmentsArea']/ms['DesiredCleaningArea']*100),ms['CurrentSurfaceNum'],errorBits)
+            errors = '{0}_{2}_CleanPercent_{1}_ErrorBits{3}'.format(ms['CurrentSurfaceType'],int(ms['CleanSegmentsArea']/max(1,ms['DesiredCleaningArea']*100)),ms['CurrentSurfaceNum'],errorBits)
         resMasterState = resMasterState+'{0}: {1}\n\t'.format(startTime,Command)   
         for i in ms:
             if i=='DateTime' or i=='Command':
                 continue
             resMasterState = resMasterState+'{0}: {1},'.format(i,ms[i])
         resMasterState = resMasterState+'\n\n'
-    return [resMasterState,errors]      #analyseMasterState
+    return [resMasterState,errors]      #UNUSED 07/11/2023
 
 def getTimeStamp(timeStamp):
     theStr = timeStamp.split(' ')
@@ -442,9 +454,9 @@ def getCleanCyclesData(cleaningData):
         if cleanCycleStarted:
             cleanData.append(cData)
     cleanCycles.append(cleanData)
-    return cleanCycles      #getCleanCyclesData
+    return cleanCycles     #UNUSED 07/11/2023
 
-def analyseCommunicationData(communicationData,AssetId,location):
+def analyseCommunicationData(communicationData,AssetId,location):            #UNUSED 07/11/2023
     if communicationData==[]:
         return ['\n'+location+'_DATA: NO_DATA\n\n',0]
     successFull = 0
@@ -546,7 +558,7 @@ def analyseCommunicationData(communicationData,AssetId,location):
     for d in surfaceIDs:
         cleanRes = cleanRes+str(d)+'\t'
     cleanRes = cleanRes+'\n\n'
-    return [cleanRes,successFull]     #analyseCommunicationData1
+    return [cleanRes,successFull]     #UNUSED 07/11/2023
 
 
 def analyseMalfunctions(malfunctions):
@@ -557,7 +569,7 @@ def analyseMalfunctions(malfunctions):
     for m in malfunctions:
         m.pop('Time')
         res = res+'\t'+json.dumps(m)+'\n'
-    return res      #analyseMalfunctions
+    return res     #UNUSED 07/11/2023
 
 def analyseCommands(cleaningCommands):
     res = 'CLEANING COMMANDS FOUND: \n'
@@ -584,15 +596,14 @@ def analyseCommands(cleaningCommands):
                 data = 'timeStamp: {0}, CleanBehavior: {1}\n'.format(c['DateTime'],c['CleanBehavior'])
             data = data+'\tSTART_CLEAN: {0}'.format(unitParams)
         res = res+data
-    return res      #analyseCommands
+    return res      #UNUSED 07/11/2023
 
-def analyseCleaningData(AssetId,cleaningData):
-    #if AssetId=='SG1-A-011-02-D01-01' or AssetId=='SG1-A-018-01-D01-08':
-    #    print('t')
+def analyseCleaningData(AssetId,cleaningData):  #UNUSED 07/11/2023
     cycleRes = list()
     cleaningCycles = getCleaningCycles(AssetId,cleaningData)
     numCycles = 0
     ERRORS = list()
+    isExpectedSequences = True
     for cycle in cleaningCycles:
         numCycles = numCycles+1
         cleanCycleTime = (cycle['endTime']-cycle['startTime']).total_seconds()
@@ -600,24 +611,35 @@ def analyseCleaningData(AssetId,cleaningData):
         DesiredCleaningArea = max(d['DesiredCleaningArea'] for d in cycle['cycleData'])
         CleanSegmentsArea = max(d['CleanSegmentsArea'] for d in cycle['cycleData'])
         SequencesCleaned = max(d['SequencesCleaned'] for d in cycle['cycleData'])
-        ExpectedSequences = max(d['ExpectedSequences'] for d in cycle['cycleData'])
+        for d in cycle['cycleData']:
+            if d.get('ExpectedSequences')==None:
+                isExpectedSequences = False
+                break
+        if(isExpectedSequences):
+            ExpectedSequences = max(d['ExpectedSequences'] for d in cycle['cycleData'])
         
-        if SequencesCleaned==0:
-            timePerSequence = 0
+            if SequencesCleaned==0:
+                timePerSequence = 0
+            else:
+                timePerSequence = cleanCycleTime/SequencesCleaned
+            if CleanSegmentsArea==0:
+                timePerSqMeters = 0
+            else:
+                timePerSqMeters = cleanCycleTime/CleanSegmentsArea
+            if DesiredCleaningArea==0:
+                cleanAreaPercent = 0
+            else:
+                cleanAreaPercent = int((CleanSegmentsArea/DesiredCleaningArea)*100)
+            if ExpectedSequences==0:
+                sequencesPercent = 0
+            else:
+                sequencesPercent = int((SequencesCleaned/ExpectedSequences)*100)
         else:
-            timePerSequence = cleanCycleTime/SequencesCleaned
-        if CleanSegmentsArea==0:
-            timePerSqMeters = 0
-        else:
-            timePerSqMeters = cleanCycleTime/CleanSegmentsArea
-        if DesiredCleaningArea==0:
-            cleanAreaPercent = 0
-        else:
-            cleanAreaPercent = int((CleanSegmentsArea/DesiredCleaningArea)*100)
-        if ExpectedSequences==0:
-            sequencesPercent = 0
-        else:
-            sequencesPercent = int((SequencesCleaned/ExpectedSequences)*100)
+            ExpectedSequences = None
+            timePerSequence = None
+            timePerSqMeters = None
+            cleanAreaPercent = None
+            sequencesPercent = None
         lenCycle = len(cycle['cycleData'])
         currentRes = currentRes+ 'CLEAN DATA: numKA: {2}, timePerSequence: {0}s, timePerSqMeters: {1}s\n'.format(timePerSequence,timePerSqMeters,lenCycle)
         currentRes = currentRes +'DesiredCleaningArea: {0}, CleanSegmentsArea: {1}, SequencesCleaned: {2}, ExpectedSequences: {3}, cleanAreaPercent: {4}%, sequencesPercent: {5}%\n'.format(DesiredCleaningArea,CleanSegmentsArea,SequencesCleaned,ExpectedSequences,cleanAreaPercent,sequencesPercent)
@@ -641,9 +663,9 @@ def analyseCleaningData(AssetId,cleaningData):
         cycleRes.append(currentRes)
         #print(currentRes)
         
-    return [cycleRes,ERRORS]        #analyseCleaningData
+    return [cycleRes,ERRORS]        #UNUSED 07/11/2023
 
-def getCleaningCycles(AssetId,cleaningData):
+def getCleaningCycles(AssetId,cleaningData):        #UNUSED 07/11/2023
     currentStateMachineLocation = None
     prevStateMachineLocation = None
     cleanCycleStarted = False
@@ -716,24 +738,6 @@ def cutUnwantedChars(dataStr):
 
 def getRobotLocation(CurrentLocationDescription):
     return {'CurrentLocationDescription':CurrentLocationDescription}
-    #CurrentLocationDescriptionStr = CurrentLocationDescription.split(',')
-    #SurfaceType = CurrentLocationDescriptionStr[1].split(': ')[0]
-    #SurfaceNumber = int(CurrentLocationDescriptionStr[1].split(': ')[1])
-    #isOdd = bool(SurfaceNumber%2)
-    #if SurfaceType=='seg':
-    #    if isOdd:SurfaceNumber = int((SurfaceNumber+1)/2)
-    #    else: SurfaceNumber = int((SurfaceNumber+2)/2)
-    #elif SurfaceType=='dock':
-    #    if isOdd:SurfaceNumber = int((SurfaceNumber+3)/2)
-    #    else: SurfaceNumber = int((SurfaceNumber+2)/2)
-    #elif SurfaceType=='bri':
-    #    if isOdd:SurfaceNumber = int((SurfaceNumber+1)/2)
-    #    else: SurfaceNumber = int(SurfaceNumber/2)
-    #else:
-    #    SurfaceNumber = None
-    #    SurfaceType = 'INVALID'
-    #CurrentLocationDescription = {'LastCleanPercent':CurrentLocationDescriptionStr[0].strip(),'SurfaceType':SurfaceType,'SurfaceNumber_N_S':SurfaceNumber,'currentSegmentStatus':CurrentLocationDescriptionStr[2].strip(),'Direction':cutUnwantedChars(CurrentLocationDescriptionStr[3].strip()),'TT_NS':cutUnwantedChars(CurrentLocationDescriptionStr[4].split('(')[1].strip()),'TT_EW':cutUnwantedChars(CurrentLocationDescriptionStr[5].split(')')[0].strip())}
-    #return CurrentLocationDescription       #getRobotLocation
 
 EVENT_BITS_STATUS = ['eventS_BIT_CHANGE_PARKING',
                      'eventS_BIT_AT_BASE',
@@ -772,26 +776,28 @@ EVENT_BITS_SENSING = ['eventS_BIT_SENSING_FENCE_CONNECTED',
                       'eventS_BIT_SENSING_FENCE_CHARGING']
 
 def getEventsList(res,eventsList):
-    for e in EVENT_BITS_STATUS:
-        if e in eventsList: 
-            res[e] = 1 
-        else:
-            res[e] = 0
-    for e in EVENT_BITS_CLEANING:
-        if e in eventsList: 
-            res[e] = 1 
-        else:
-            res[e] = 0
-    for e in EVENT_BITS_ERROR:
-        if e in eventsList: 
-            res[e] = 1 
-        else:
-            res[e] = 0
-    for e in EVENT_BITS_SENSING:
-        if e in eventsList: 
-            res[e] = 1 
-        else:
-            res[e] = 0
+#    for e in EVENT_BITS_STATUS:
+#        if e in eventsList: 
+#            res[e] = 1 
+#        else:
+#            res[e] = 0
+#    for e in EVENT_BITS_CLEANING:
+#        if e in eventsList: 
+#            res[e] = 1 
+#        else:
+#            res[e] = 0
+#    for e in EVENT_BITS_ERROR:
+#        if e in eventsList: 
+#            res[e] = 1 
+#        else:
+#            res[e] = 0
+#    for e in EVENT_BITS_SENSING:
+#        if e in eventsList: 
+#            res[e] = 1 
+#        else:
+#            res[e] = 0
+    for e in eventsList:
+        res[e] = 1
     return res          #getEventsList
 
 def getkeepAliveData(Data,AssetId,DateTime,UTC,isCleaningEvent):
