@@ -839,7 +839,12 @@ def lineAnalizeHistory(lineJson,i):
     AssetId = lineJson['AssetId']
     Timestamp = lineJson['Timestamp'].split('T')
     date = Timestamp[0]
-    timeUTC = Timestamp[1].split('+')
+    if not Timestamp[1].find('+')==-1:
+        timeUTC = Timestamp[1].split('+')
+    elif not Timestamp[1].find('-')==-1:
+        timeUTC = Timestamp[1].split('-')
+    else:
+        return None
     timeS = timeUTC[0].split('.')
     UTC = '+'+timeUTC[1]
     DateTime = '{0} {1}:{2}'.format(date,timeS[0],timeS[1][:3])
