@@ -944,7 +944,10 @@ def lineAnalizeHistory(lineJson,i):
                     res['CurrentLocation'] = Data['Trigger']['CurrentLocation']
                     res['CurrentLocationDescription'] = getRobotLocation(Data['Trigger']['CurrentLocationDescription'])
                 else:
-                    res['State'] = Data['Trigger']['NewState']
+                    if not Data['Trigger'].get('NewState')==None:
+                        res['State'] = Data['Trigger']['NewState']
+                    else:
+                        res['State'] = None
                     res['Cleaning'] = None
                     res['CurrentLocation'] = None
                     res['CurrentLocationDescription'] = None
